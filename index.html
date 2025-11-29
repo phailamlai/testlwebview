@@ -48,14 +48,14 @@
 //     // xử lý data ...
 // }
 
-window.addEventListener("message", (event) => {
-    // Không cần kiểm tra origin nếu bạn cho phép mọi nguồn
-    console.log("Received from Cocos:", event.data);
+// window.addEventListener("message", (event) => {
+//     // Không cần kiểm tra origin nếu bạn cho phép mọi nguồn
+//     console.log("Received from Cocos:", event.data);
 
-    if (event.data.type === "fromCocos") {
-        receiveDataFromCocos(event.data.data);
-    }
-});
+//     if (event.data.type === "fromCocos") {
+//         receiveDataFromCocos(event.data.data);
+//     }
+// });
 
 function receiveDataFromCocos(data) {
     console.log("receiveDataFromCocos:", data);
