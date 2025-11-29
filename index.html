@@ -48,12 +48,18 @@
 //     // xử lý data ...
 // }
 
-         console.log("WebView loaded:", window.location.href);
+window.addEventListener("message", (event) => {
+    // Không cần kiểm tra origin nếu bạn cho phép mọi nguồn
+    console.log("Received from Cocos:", event.data);
 
-    window.receiveDataFromCocos = function(data) {
-        console.log("Received from Cocos:", data);
-        document.body.innerHTML = "<h1>DATA: " + data + "</h1>";
+    if (event.data.type === "fromCocos") {
+        receiveDataFromCocos(event.data.data);
     }
+});
+
+function receiveDataFromCocos(data) {
+    console.log("receiveDataFromCocos:", data);
+}
     </script>
 </body>
 
