@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tudo86</title>
     <style>
         * {
@@ -17,15 +18,20 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
 
+
+
+
         iframe {
-            position: fixed;
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw !important;
-            height: 100vh !important;
+            width: 100% !important;
+            height: 100% !important;
             border: none;
             margin: 0;
             padding: 0;
@@ -34,32 +40,24 @@
     </style>
 </head>
 
-<body id="container">
 
+<body id="container" style="margin: 0; padding: 0; overflow: hidden;">
+    <div id="iframe-wrapper"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; margin: 0; padding: 0; overflow: hidden;">
+    </div>
     <script>
         const elBody = document.getElementById('container')
         function createFullScreenIframe(url) {
+            const wrapper = document.getElementById('iframe-wrapper');
             const elIframe = document.createElement('iframe');
             elIframe.src = url;
-            elIframe.style.position = 'fixed';
-            elIframe.style.top = '0';
-            elIframe.style.left = '0';
-            elIframe.style.width = '100vw';
-            elIframe.style.height = '100vh';
+            elIframe.style.width = '100%';
+            elIframe.style.height = '100%';
             elIframe.style.border = 'none';
             elIframe.style.margin = '0';
             elIframe.style.padding = '0';
             elIframe.style.display = 'block';
-            document.body.appendChild(elIframe);
-
-            function resizeIframe() {
-                elIframe.style.height = window.innerHeight + 'px';
-            }
-
-            resizeIframe();
-
-            window.addEventListener('resize', resizeIframe);
-            window.addEventListener('orientationchange', resizeIframe);
+            wrapper.appendChild(elIframe);
         }
 
         function receiveDataFromCocos(url) {
@@ -152,5 +150,7 @@
 
     </script>
 </body>
+
+
 
 </html>
