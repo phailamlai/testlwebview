@@ -16,6 +16,8 @@
         body {
             width: 100%;
             height: 100%;
+            margin: 0;
+            padding: 0;
             overflow: hidden;
         }
 
@@ -45,28 +47,50 @@
         const elBody = document.getElementById('container')
         function receiveDataFromCocos(url) {
             console.log("receiveDataFromCocos:", url);
-         const iframe = document.createElement("iframe");
 
-    // Quan trọng: phải đặt allow trước hoặc cùng lúc set src
-    iframe.setAttribute("allow", "fullscreen; autoplay; clipboard-write; encrypted-media;");
+            // Kiểm tra xem đã có iframe chưa để tránh tạo trùng lặp
+            let iframe = document.getElementById("source");
+            if (iframe) {
+                iframe.src = url;
+                return;
+            }
 
-    iframe.id = "source";
-    iframe.src = url;
+            iframe = document.createElement("iframe");
 
-    // Set full screen trước khi append
-    iframe.style.position = "fixed";
-    iframe.style.top = "0";
-    iframe.style.left = "0";
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.border = "none";
-    iframe.style.margin = "0";
-    iframe.style.padding = "0";
-    iframe.style.overflow = "hidden";
-    iframe.style.zIndex = "1";
+            // Các thuộc tính cho phép full quyền
+            iframe.setAttribute("allow", "fullscreen; autoplay; clipboard-write; encrypted-media; gyroscope; accelerometer;");
 
-    // Cuối cùng mới append
-    elBody.appendChild(iframe);
+            // Thuộc tính quan trọng để bỏ thanh cuộn
+            iframe.setAttribute("scrolling", "no");
+            iframe.setAttribute("frameborder", "0");
+
+            iframe.id = "source";
+            iframe.src = url;
+
+            // CSS ép buộc full màn hình bất chấp phần tử cha
+            iframe.style.position = "fixed";
+            iframe.style.top = "0";
+            iframe.style.left = "0";
+            iframe.style.right = "0";
+            iframe.style.bottom = "0";
+
+            // Sử dụng vw/vh để lấy theo kích thước màn hình thiết bị
+            iframe.style.width = "100vw";
+            iframe.style.height = "100vh";
+
+            // (Mới) Dùng dvh cho mobile để fix lỗi thanh địa chỉ che mất nội dung
+            // Nếu trình duyệt hỗ trợ dvh nó sẽ ghi đè dòng trên
+            if (CSS.supports('height: 100dvh')) {
+                iframe.style.height = "100dvh";
+            }
+
+            iframe.style.border = "none";
+            iframe.style.margin = "0";
+            iframe.style.padding = "0";
+            iframe.style.overflow = "hidden";
+            iframe.style.zIndex = "1"; // Nằm dưới nút logo (nút logo z-index 9999)
+
+            document.body.appendChild(iframe);
 
         }
 
@@ -118,7 +142,7 @@
             const dy = y - startY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance > 10) isDragging = true;
+            if (distance > 5) isDragging = true;
 
             btn.style.left = btn.offsetLeft + dx + 'px';
             btn.style.top = btn.offsetTop + dy + 'px';
@@ -134,7 +158,7 @@
             const dy = y - startY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance < 10 && !isDragging) {
+            if (distance < 5 && !isDragging) {
                 document.location = 'testkey://close';
             }
 
