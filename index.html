@@ -132,7 +132,13 @@
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 5 && !isDragging) {
-                window.location.href = 'testkey://close';
+                 if (/Android/i.test(navigator.userAgent)) {
+        // Android nhận prompt
+        window.prompt('close');
+    } else {
+        // iOS nhận scheme
+        document.location = 'testkey://close';
+    }
             } else {
                 const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
                 if (btnCenter < window.innerWidth / 2) {
