@@ -132,7 +132,7 @@
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 5 && !isDragging) {
-                document.location = 'testkey://close';
+                window.location.href = 'testkey://close';
             } else {
                 const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
                 if (btnCenter < window.innerWidth / 2) {
