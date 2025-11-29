@@ -60,54 +60,71 @@
         btn.style.cursor = 'grab';
         btn.style.zIndex = '9999';
         elBody.appendChild(btn);
-
+        btn.style.width = (window.innerWidth * 0.08) + "px";
+        btn.style.height = "auto"; // giữ tỉ lệ ảnh
 
         let startX = 0;
         let startY = 0;
         let isDragging = false;
 
-        btn.onmousedown = function (e) {
+
+        // --- MOBILE EVENTS ---
+        btn.ontouchstart = function (e) {
+            const t = e.touches[0];
+            dragStart(t.clientX, t.clientY, e);
+        };
+
+        document.ontouchmove = function (e) {
+            const t = e.touches[0];
+            dragMove(t.clientX, t.clientY);
+        };
+
+        document.ontouchend = function (e) {
+            const t = e.changedTouches[0];
+            dragEnd(t.clientX, t.clientY);
+        };
+
+
+        // --- DRAG LOGIC SHARED ---
+        function dragStart(x, y, e) {
             e.preventDefault();
-            startX = e.clientX;
-            startY = e.clientY;
+            startX = x;
+            startY = y;
             isDragging = false;
+        }
 
-            function onMouseMove(event) {
-                const dx = event.clientX - startX;
-                const dy = event.clientY - startY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+        function dragMove(x, y) {
+            if (startX === 0 && startY === 0) return;
 
-                if (distance > 0) {
-                    isDragging = true;
-                }
+            const dx = x - startX;
+            const dy = y - startY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
 
-                btn.style.left = btn.offsetLeft + dx + 'px';
-                btn.style.top = btn.offsetTop + dy + 'px';
+            if (distance > 10) isDragging = true;
 
-                startX = event.clientX;
-                startY = event.clientY;
+            btn.style.left = btn.offsetLeft + dx + 'px';
+            btn.style.top = btn.offsetTop + dy + 'px';
+
+            startX = x;
+            startY = y;
+        }
+
+        function dragEnd(x, y) {
+            if (startX === 0 && startY === 0) return;
+
+            const dx = x - startX;
+            const dy = y - startY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < 10 && !isDragging) {
+                document.location = 'testkey://close';
             }
 
-            document.addEventListener('mousemove', onMouseMove);
+            startX = 0;
+            startY = 0;
+        }
 
-            document.onmouseup = function () {
-                document.removeEventListener('mousemove', onMouseMove);
-
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < 5 && !isDragging) {
-                    document.location = 'testkey://close';
-                }
-
-                document.onmouseup = null;
-            };
-        };
-
-        btn.ondragstart = function () {
-            return false;
-        };
+        btn.ondragstart = () => false;
 
     </script>
 </body>
