@@ -46,14 +46,36 @@
 
     <script>
         const elBody = document.getElementById('container')
+        function createFullScreenIframe(url) {
+            const elIframe = document.createElement('iframe');
+            elIframe.src = url;
+            elIframe.style.position = 'fixed';
+            elIframe.style.top = '0';
+            elIframe.style.left = '0';
+            elIframe.style.width = '100%';
+            elIframe.style.border = 'none';
+            elIframe.style.margin = '0';
+            elIframe.style.padding = '0';
+            elIframe.style.display = 'block';
+            document.body.appendChild(elIframe);
+
+            function resizeIframe() {
+                elIframe.style.height = window.innerHeight + 'px';
+            }
+
+            resizeIframe();
+
+            window.addEventListener('resize', resizeIframe);
+            window.addEventListener('orientationchange', resizeIframe);
+        }
+
         function receiveDataFromCocos(url) {
             console.log("receiveDataFromCocos:", url);
-            const elIframe = document.createElement('iframe')
-            const elBody = document.getElementById('container')
-            elBody.appendChild(elIframe)
-            elIframe.src = url
+            createFullScreenIframe(url);
 
         }
+
+
 
 
         const btn = document.createElement('img');
@@ -63,14 +85,13 @@
         btn.style.left = '50px';
         btn.style.cursor = 'grab';
         btn.style.zIndex = '9999';
-        elBody.appendChild(btn);
         btn.style.width = "50px";
         btn.style.height = "auto"; // giữ tỉ lệ ảnh
+        elBody.appendChild(btn);
 
         let startX = 0;
         let startY = 0;
         let isDragging = false;
-
 
         // --- MOBILE EVENTS ---
         btn.ontouchstart = function (e) {
@@ -88,8 +109,7 @@
             dragEnd(t.clientX, t.clientY);
         };
 
-
-        // --- DRAG LOGIC SHARED ---
+        // --- DRAG LOGIC ---
         function dragStart(x, y, e) {
             e.preventDefault();
             startX = x;
@@ -120,8 +140,17 @@
             const dy = y - startY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
+            // Nếu click nhẹ (ko kéo)
             if (distance < 10 && !isDragging) {
                 document.location = 'testkey://close';
+            } else {
+                // Tự dính về trái hoặc phải
+                const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
+                if (btnCenter < window.innerWidth / 2) {
+                    btn.style.left = '0px';
+                } else {
+                    btn.style.left = (window.innerWidth - btn.offsetWidth) + 'px';
+                }
             }
 
             startX = 0;
