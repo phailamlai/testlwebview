@@ -39,27 +39,76 @@
     </style>
 </head>
 
-<body>
-    <!-- <iframe id="source" src="" frameborder="0"></iframe> -->
+<body id="container">
 
     <script>
-//        function receiveDataFromCocos(data) {
-//     console.log("Received from Cocos:", data);
-//     // xử lý data ...
-// }
+        const elBody = document.getElementById('container')
+        function receiveDataFromCocos(url) {
+            console.log("receiveDataFromCocos:", url);
+            const elIrame = document.createElement('iframe')
 
-// window.addEventListener("message", (event) => {
-//     // Không cần kiểm tra origin nếu bạn cho phép mọi nguồn
-//     console.log("Received from Cocos:", event.data);
+            elBody.appendChild(elIrame)
+            elIrame.id = "source"
+            elIrame.src = url
+        }
 
-//     if (event.data.type === "fromCocos") {
-//         receiveDataFromCocos(event.data.data);
-//     }
-// });
+        const btn = document.createElement('img');
+        btn.src = './logo.png';
+        btn.style.position = 'absolute';
+        btn.style.top = '50px';
+        btn.style.left = '50px';
+        btn.style.cursor = 'grab';
+        btn.style.zIndex = '9999';
+        elBody.appendChild(btn);
 
-function receiveDataFromCocos(data) {
-    console.log("receiveDataFromCocos:", data);
-}
+
+        let startX = 0;
+        let startY = 0;
+        let isDragging = false;
+
+        btn.onmousedown = function (e) {
+            e.preventDefault();
+            startX = e.clientX;
+            startY = e.clientY;
+            isDragging = false;
+
+            function onMouseMove(event) {
+                const dx = event.clientX - startX;
+                const dy = event.clientY - startY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance > 0) {
+                    isDragging = true;
+                }
+
+                btn.style.left = btn.offsetLeft + dx + 'px';
+                btn.style.top = btn.offsetTop + dy + 'px';
+
+                startX = event.clientX;
+                startY = event.clientY;
+            }
+
+            document.addEventListener('mousemove', onMouseMove);
+
+            document.onmouseup = function () {
+                document.removeEventListener('mousemove', onMouseMove);
+
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < 5 && !isDragging) {
+                    document.location = 'testkey://close';
+                }
+
+                document.onmouseup = null;
+            };
+        };
+
+        btn.ondragstart = function () {
+            return false;
+        };
+
     </script>
 </body>
 
