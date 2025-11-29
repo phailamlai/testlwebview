@@ -46,20 +46,9 @@
         function receiveDataFromCocos(url) {
             console.log("receiveDataFromCocos:", url);
             const elIrame = document.createElement('iframe')
-
+            elBody.appendChild(elIrame)
             elIrame.id = "source"
             elIrame.src = url
-            iframe.style.position = "fixed";
-            iframe.style.top = "0";
-            iframe.style.left = "0";
-            iframe.style.width = "100%";
-            iframe.style.height = "100%";
-            iframe.style.border = "none";
-            iframe.style.margin = "0";
-            iframe.style.padding = "0";
-            iframe.style.overflow = "hidden";
-            iframe.style.zIndex = "1";
-            elBody.appendChild(elIrame)
 
         }
 
@@ -71,7 +60,7 @@
         btn.style.cursor = 'grab';
         btn.style.zIndex = '9999';
         elBody.appendChild(btn);
-        btn.style.width = (window.innerWidth * 0.12) + "px";
+        btn.style.width = (window.innerWidth * 0.08) + "px";
         btn.style.height = "auto"; // giữ tỉ lệ ảnh
 
         let startX = 0;
