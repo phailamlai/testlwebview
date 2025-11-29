@@ -19,14 +19,6 @@
             overflow: hidden;
         }
 
-        #btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px;
-            font-size: 20px;
-        }
 
         iframe {
             position: fixed;
@@ -52,7 +44,8 @@
             elIframe.style.position = 'fixed';
             elIframe.style.top = '0';
             elIframe.style.left = '0';
-            elIframe.style.width = '100%';
+            elIframe.style.width = '100vw';
+            elIframe.style.height = '100vh';
             elIframe.style.border = 'none';
             elIframe.style.margin = '0';
             elIframe.style.padding = '0';
@@ -86,7 +79,7 @@
         btn.style.cursor = 'grab';
         btn.style.zIndex = '9999';
         btn.style.width = "70px";
-        btn.style.height = "auto"; // giữ tỉ lệ ảnh
+        btn.style.height = "auto";
         elBody.appendChild(btn);
 
         let startX = 0;
@@ -124,7 +117,7 @@
             const dy = y - startY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            if (distance > 10) isDragging = true;
+            if (distance > 5) isDragging = true;
 
             btn.style.left = btn.offsetLeft + dx + 'px';
             btn.style.top = btn.offsetTop + dy + 'px';
@@ -140,11 +133,9 @@
             const dy = y - startY;
             const distance = Math.sqrt(dx * dx + dy * dy);
 
-            // Nếu click nhẹ (ko kéo)
-            if (distance < 10 && !isDragging) {
+            if (distance < 5 && !isDragging) {
                 document.location = 'testkey://close';
             } else {
-                // Tự dính về trái hoặc phải
                 const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
                 if (btnCenter < window.innerWidth / 2) {
                     btn.style.left = '0px';
