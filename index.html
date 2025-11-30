@@ -22,135 +22,239 @@
             padding: 0 !important;
         }
 
-
-
-
-
-        iframe {
-            position: absolute;
+        /* Iframe Game */
+        #iframe-wrapper {
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100% !important;
-            height: 100% !important;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
             border: none;
-            margin: 0;
-            padding: 0;
             display: block;
+        }
+
+        /* --- MODAL CARD (Mặc định ẩn) --- */
+        #card-overlay {
+            display: none;
+            /* QUAN TRỌNG: Mặc định là ẩn */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.6);
+            /* Nền đen mờ */
+            z-index: 10000;
+            /* Cao hơn mọi thứ */
+            backdrop-filter: blur(4px);
+            align-items: center;
+            /* Căn giữa dọc */
+            justify-content: center;
+            /* Căn giữa ngang */
+        }
+
+        .card-box {
+            background: #fff;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease-out;
+            /* Hiệu ứng hiện ra */
+        }
+
+        /* Class này được thêm vào bằng JS để kích hoạt hiệu ứng */
+        .card-box.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #00c6fb 0%, #005bea 100%);
+            /* Màu xanh dương hiện đại */
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .card-header h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .card-header p {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+
+
+        .btn-exit {
+            background: #fff;
+            border: 2px solid #ff4757;
+            color: #ff4757;
+        }
+
+        .btn-close {
+            background: #333;
+            color: #fff;
+            margin-bottom: 0;
         }
     </style>
 </head>
 
 
 <body id="container" style="margin: 0; padding: 0; overflow: hidden;">
-    <div id="iframe-wrapper"
-        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; margin: 0; padding: 0; overflow: hidden;">
+    <div id="iframe-wrapper"></div>
+
+    <!-- MODAL CARD (Sẵn sàng trong HTML nhưng đang ẩn) -->
+    <div id="card-overlay">
+        <div class="card-box" id="card-box">
+            <div class="card-header">
+                <h3>Thoát game</h3>
+                <p>Bạn có chắc chắn muốn thoát game không?</p>
+            </div>
+            <div class="card-body">
+                <button class="card-btn btn-exit" onclick="actionCloseApp()">Đồng ý</button>
+                <button class="card-btn btn-close" onclick="toggleCard(false)">Huỷ</button>
+            </div>
+        </div>
     </div>
+
     <script>
-        const elBody = document.getElementById('container')
+        // --- LOGIC NHẬN DATA VÀ TẠO IFRAME ---
+        const iframeWrapper = document.getElementById('iframe-wrapper');
+        const cardOverlay = document.getElementById('card-overlay');
+        const cardBox = document.getElementById('card-box');
+
+        let currentUrl = "";
+        window.isNative = false;
+
         function createFullScreenIframe(url) {
-            const wrapper = document.getElementById('iframe-wrapper');
-            const elIframe = document.createElement('iframe');
-            elIframe.src = url;
-            elIframe.style.width = '100%';
-            elIframe.style.height = '100%';
-            elIframe.style.border = 'none';
-            elIframe.style.margin = '0';
-            elIframe.style.padding = '0';
-            elIframe.style.display = 'block';
-            wrapper.appendChild(elIframe);
+            iframeWrapper.innerHTML = '';
+            const el = document.createElement('iframe');
+            el.setAttribute("allow", "fullscreen; autoplay; clipboard-write; encrypted-media; gyroscope; accelerometer;");
+            el.id = "game-iframe";
+            el.src = url;
+            iframeWrapper.appendChild(el);
         }
 
-        function receiveDataFromCocos(url) {
-            console.log("receiveDataFromCocos:", url);
-            createFullScreenIframe(url);
-
+        function receiveDataFromCocos(data) {
+            if (data.url) {
+                currentUrl = data.url;
+                createFullScreenIframe(data.url);
+            }
+            if (data.isNative !== undefined) window.isNative = data.isNative;
         }
 
+        // --- LOGIC ĐÓNG / MỞ CARD ---
+        function toggleCard(show) {
+            if (show) {
+                cardOverlay.style.display = 'flex';
+                setTimeout(() => { cardBox.classList.add('active'); }, 10);
+            } else {
+                cardBox.classList.remove('active');
+                setTimeout(() => { cardOverlay.style.display = 'none'; }, 300);
+            }
+        }
 
+        cardOverlay.onclick = function (e) {
+            if (e.target === cardOverlay) toggleCard(false);
+        }
 
+        function actionCloseApp() {
+            if (window.isNative) document.location = 'testkey://close';
+            else { toggleCard(false); }
+        }
 
+        // function actionReload() {
+        //     if (currentUrl) {
+        //         const iframe = document.getElementById('game-iframe');
+        //         if (iframe) iframe.src = iframe.src;
+        //         else createFullScreenIframe(currentUrl);
+        //     }
+        //     toggleCard(false);
+        // }
+
+        // --- LOGIC NÚT LOGO (DRAG & CLICK) ---
         const btn = document.createElement('img');
         btn.src = './logo.png';
-        btn.style.position = 'absolute';
-        btn.style.top = '50px';
-        btn.style.left = '50px';
-        btn.style.cursor = 'grab';
-        btn.style.zIndex = '9999';
-        btn.style.width = "70px";
-        btn.style.height = "auto";
-        elBody.appendChild(btn);
+        btn.style.cssText = "position:absolute; top:50px; left:50px; cursor:pointer; z-index:9999; width:80px; height:auto; user-select:none; -webkit-user-select:none;";
+        document.body.appendChild(btn);
 
-        let startX = 0;
-        let startY = 0;
-        let isDragging = false;
+        let startX = 0, startY = 0, isDragging = false;
 
-        // --- MOBILE EVENTS ---
-        btn.ontouchstart = function (e) {
-            const t = e.touches[0];
-            dragStart(t.clientX, t.clientY, e);
-        };
+        const start = (x, y) => { startX = x; startY = y; isDragging = false; };
 
-        document.ontouchmove = function (e) {
-            const t = e.touches[0];
-            dragMove(t.clientX, t.clientY);
-        };
-
-        document.ontouchend = function (e) {
-            const t = e.changedTouches[0];
-            dragEnd(t.clientX, t.clientY);
-        };
-
-        // --- DRAG LOGIC ---
-        function dragStart(x, y, e) {
-            e.preventDefault();
-            startX = x;
-            startY = y;
-            isDragging = false;
-        }
-
-        function dragMove(x, y) {
-            if (startX === 0 && startY === 0) return;
-
-            const dx = x - startX;
-            const dy = y - startY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance > 5) isDragging = true;
-
-            btn.style.left = btn.offsetLeft + dx + 'px';
-            btn.style.top = btn.offsetTop + dy + 'px';
-
-            startX = x;
-            startY = y;
-        }
-
-        function dragEnd(x, y) {
-            if (startX === 0 && startY === 0) return;
-
-            const dx = x - startX;
-            const dy = y - startY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-
-            if (distance < 5 && !isDragging) {
-                 if (/Android/i.test(navigator.userAgent)) {
-        // Android nhận prompt
-        window.prompt('close');
-    } else {
-        // iOS nhận scheme
-        document.location = 'testkey://close';
-    }
-            } else {
-                const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
-                if (btnCenter < window.innerWidth / 2) {
-                    btn.style.left = '0px';
-                } else {
-                    btn.style.left = (window.innerWidth - btn.offsetWidth) + 'px';
-                }
+        const move = (x, y) => {
+            if (!startX && !startY) return;
+            const dist = Math.sqrt((x - startX) ** 2 + (y - startY) ** 2);
+            if (dist > 5) {
+                isDragging = true;
+                btn.style.left = (btn.offsetLeft + (x - startX)) + 'px';
+                btn.style.top = (btn.offsetTop + (y - startY)) + 'px';
+                startX = x; startY = y;
             }
+        };
 
-            startX = 0;
-            startY = 0;
-        }
+        const end = () => {
+            if (!startX && !startY) return;
+
+            if (!isDragging) {
+                toggleCard(true);
+            } else {
+
+                const btnCenter = btn.offsetLeft + btn.offsetWidth / 2;
+                const screenCenter = window.innerWidth / 2;
+
+                if (btnCenter < screenCenter) btn.style.left = '30px';
+                else btn.style.left = (window.innerWidth - btn.offsetWidth - 30) + 'px';
+
+                if (btn.offsetTop < 0) btn.style.top = '0px';
+                if (btn.offsetTop > window.innerHeight - btn.offsetHeight)
+                    btn.style.top = (window.innerHeight - btn.offsetHeight) + 'px';
+            }
+            startX = 0; startY = 0; isDragging = false;
+        };
+
+        btn.ontouchstart = e => start(e.touches[0].clientX, e.touches[0].clientY);
+        document.ontouchmove = e => move(e.touches[0].clientX, e.touches[0].clientY);
+        document.ontouchend = e => end();
+
+        btn.onmousedown = e => {
+            start(e.clientX, e.clientY);
+            document.onmousemove = m => move(m.clientX, m.clientY);
+            document.onmouseup = u => {
+                end();
+                document.onmousemove = null;
+                document.onmouseup = null;
+            }
+        };
 
         btn.ondragstart = () => false;
 
